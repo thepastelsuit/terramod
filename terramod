@@ -1,0 +1,63 @@
+#!/bin/bash
+
+TERRAFORM_BASE=$(pwd)
+
+cd "$(dirname "$(realpath "$0")")"
+
+# Determine if node is installed
+NODE_VERSION=$(node --version 2>&1)
+if [ $? -ne 0 ]
+then
+	echo "Nodejs not found. Please install before running."
+	exit 1
+fi
+
+# Determine if we have cheerio
+CHEERIO=$(npm list --depth 0 | grep cheerio | wc -l)
+if [ $CHEERIO -lt 1 ]
+then
+	echo "Missing cheerio. Installing with npm install cheerio"
+	npm install cheerio
+	echo "Installed cheerio module."
+fi
+
+# Grab args from user
+if [ -z "$1" ]
+then
+	echo -e "Must supply terraform module to create. i.e. \e[93mterramod aws_instance\e[0m"
+	exit 1
+fi
+
+NEW_MODULE=$1
+
+if [ -z "$2" ]
+then
+	EXAMPLE_SCRIPT=1
+else
+	EXAMPLE_SCRIPT=$2
+fi
+
+echo -e "Creating \e[1m${NEW_MODULE}\e[0m module using example \e[1m#${EXAMPLE_SCRIPT}\e[0m."
+
+
+# Pull page from terraform docs
+export TERRAMOD_PAGE_HTML=$(curl https://www.terraform.io/docs/providers/aws/r/${NEW_MODULE}.html 2>&1)
+
+# Run nodejs script and pass page html
+MODULE_SCRIPT=$(node terramod.js ${EXAMPLE_SCRIPT} 2>&1)
+
+# Change back to our runtime location
+cd "$TERRAFORM_BASE"
+
+# Create module dir if needed
+mkdir -p modules/${NEW_MODULE}
+touch modules/${NEW_MODULE}/main.tf
+touch modules/${NEW_MODULE}/variables.tf
+touch modules/${NEW_MODULE}/outputs.tf
+
+echo "$MODULE_SCRIPT" > modules/${NEW_MODULE}/main.tf
+
+echo -e "Created \e[93mmodules/${NEW_MODULE}/\e[0m and populated \e[93mmain.tf\e[0m with code from example \e[93m#${EXAMPLE_SCRIPT}\e[0m."
+
+exit 0
+

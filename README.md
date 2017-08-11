@@ -27,6 +27,6 @@ $ terramod <aws resource name>
 ## CLI Arguments
 The script takes arguments as such `terramod <aws resource name> <example number from docs>`.
 
-`<aws resource name>` is found at the end of a Terraform doc page before the **.html**, i.e. https://www.terraform.io/docs/providers/aws/r/**api_gateway_integration**.html
+`<aws resource name>` is found at the end of a Terraform doc page before the **.html**, i.e. https://www.terraform.io/docs/providers/aws/r/<b>api_gateway_integration</b>.html
 
 `<example number from docs>` will default to **1** and use the first example found on that doc page. Some resources in the terraform docs have multiple examples, and you can pass a different value to have terramod generate your **main.tf** file from that example instead.

@@ -1,8 +1,7 @@
 #!/bin/bash
 
-TERRAFORM_BASE=$(pwd)
-
-cd "$(dirname "$(realpath "$0")")"
+#Change into the real directory where the terramod script is located
+pushd $(dirname $(readlink `which terramod`)) >/dev/null
 
 # Determine if node is installed
 NODE_VERSION=$(node --version 2>&1)
@@ -24,7 +23,7 @@ fi
 # Grab args from user
 if [ -z "$1" ]
 then
-	echo -e "Must supply terraform module to create. i.e. \e[93mterramod aws_instance\e[0m"
+	echo -e "Must supply terraform module to create. i.e. \033[93mterramod aws_instance\033[0m"
 	exit 1
 fi
 
@@ -37,7 +36,7 @@ else
 	EXAMPLE_SCRIPT=$2
 fi
 
-echo -e "Creating \e[1m${NEW_MODULE}\e[0m module using example \e[1m#${EXAMPLE_SCRIPT}\e[0m."
+echo -e "Creating \033[1m${NEW_MODULE}\033[0m module using example \033[1m#${EXAMPLE_SCRIPT}\033[0m."
 
 
 # Pull page from terraform docs
@@ -47,7 +46,7 @@ export TERRAMOD_PAGE_HTML=$(curl https://www.terraform.io/docs/providers/aws/r/$
 MODULE_SCRIPT=$(node terramod.js ${EXAMPLE_SCRIPT} 2>&1)
 
 # Change back to our runtime location
-cd "$TERRAFORM_BASE"
+popd > /dev/null
 
 # Create module dir if needed
 mkdir -p modules/${NEW_MODULE}
@@ -57,7 +56,6 @@ touch modules/${NEW_MODULE}/outputs.tf
 
 echo "$MODULE_SCRIPT" > modules/${NEW_MODULE}/main.tf
 
-echo -e "Created \e[93mmodules/${NEW_MODULE}/\e[0m and populated \e[93mmain.tf\e[0m with code from example \e[93m#${EXAMPLE_SCRIPT}\e[0m."
+echo -e "Created \033[93mmodules/${NEW_MODULE}/\033[0m and populated \033[93mmain.tf\033[0m with code from example \033[93m#${EXAMPLE_SCRIPT}\033[0m."
 
 exit 0
-
